@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Data Management Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Welcome back, {{ user.get_full_name|default:user.username }}</p>
+</div>
+
+{% if can_manage_tabs %}
+<div class="card mb-4">
+    <div class="card-header">Management Options</div>
+    <div class="card-body">
+        <button class="btn btn-primary btn-sm" onclick="showModal('createDepartmentModal')">
+            ➕ Create Department
+        </button>
+    </div>
+</div>
+{% endif %}
+
+<!-- Departments Grid -->
+<div class="departments-list">
+    {% for department in departments %}
+    <div class="department-card">
+        <h3>{{ department.name }}</h3>
+        {% if department.description %}
+        <p>{{ department.description }}</p>
+        {% else %}
+        <p class="text-muted">No description</p>
+        {% endif %}
+
+        <!-- Tabs -->
+        <div style="margin-top: 1rem;">
+            <strong>Tabs:</strong>
+            {% if department.tabs.exists %}
+            <ul class="tabs-list">
+                {% for tab in department.tabs.all %}
+                <li>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <a href="{% url 'view_tab' tab.id %}">{{ tab.name }}</a>
+                        {% if can_manage_tabs %}
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-sm btn-secondary" onclick="renameTab({{ tab.id }})" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                ✏️
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTab({{ tab.id }}, '{{ tab.name }}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                🗑️
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">No tabs yet</p>
+            {% endif %}
+
+            {% if can_manage_tabs %}
+            <button class="btn btn-success btn-sm" onclick="showModal('createTabModal')" data-department-id="{{ department.id }}" style="margin-top: 0.5rem;">
+                ➕ Add Tab
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-body text-center">
+            <p>No departments available</p>
+            {% if can_manage_tabs %}
+            <button class="btn btn-primary" onclick="showModal('createDepartmentModal')">Create First Department</button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Create Department Modal -->
+<div id="createDepartmentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create Department</h2>
+            <button class="modal-close" onclick="hideModal('createDepartmentModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="departmentName">Department Name *</label>
+                <input type="text" id="departmentName" class="form-control" placeholder="Enter department name" required>
+            </div>
+            <div class="form-group">
+                <label for="departmentDescription">Description</label>
+                <textarea id="departmentDescription" class="form-control" placeholder="Enter department description" rows="4"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="createDepartment()" style="width: 100%; margin-top: 1rem;">Create Department</button>
+        </div>
+    </div>
+</div>
+
+<!-- Create Tab Modal -->
+<div id="createTabModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Tab</h2>
+            <button class="modal-close" onclick="hideModal('createTabModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="departmentId">
+            <div class="form-group">
+                <label for="tabName">Tab Name *</label>
+                <input type="text" id="tabName" class="form-control" placeholder="Enter tab name" required>
+            </div>
+            <div class="form-group">
+                <label for="tabDescription">Description</label>
+                <textarea id="tabDescription" class="form-control" placeholder="Enter tab description" rows="4"></textarea>
+            </div>
+            <button class="btn btn-success" onclick="createTabWithDepartmentId()" style="width: 100%; margin-top: 1rem;">Create Tab</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Handle tab button clicks to set department ID
+    const tabButtons = document.querySelectorAll('button[data-department-id]');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            document.getElementById('departmentId').value = this.getAttribute('data-department-id');
+        });
+    });
+});
+
+function createTabWithDepartmentId() {
+    const departmentId = document.getElementById('departmentId').value;
+    if (!departmentId) {
+        alert('Please select a department first');
+        return;
+    }
+    createTab(parseInt(departmentId));
+}
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Record - Data Management Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Record #{{ record.id }}</h1>
+    <p>Tab: {{ tab.department.name }} - {{ tab.name }}</p>
+</div>
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<div class="card" style="max-width: 800px;">
+    <div class="card-header">Edit Record</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_data">Record Data (JSON Format) *</label>
+                <textarea id="id_data" name="data" class="form-control" rows="15" required>{{ data_json }}</textarea>
+                <small class="form-help">Edit the data as valid JSON. The text field will turn green when valid JSON is detected.</small>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-success">Save Changes</button>
+                <a href="{% url 'view_tab' tab.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div style="margin-top: 2rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+    <strong>Record Metadata:</strong>
+    <p>Created: {{ record.created_at|date:"M d, Y H:i" }} by {{ record.created_by.get_full_name|default:record.created_by.username }}</p>
+    <p>Last Updated: {{ record.updated_at|date:"M d, Y H:i" }} {% if record.updated_by %}by {{ record.updated_by.get_full_name|default:record.updated_by.username }}{% endif %}</p>
+</div>
+
+<script>
+validateJSON('id_data');
+</script>
+{% endblock %}

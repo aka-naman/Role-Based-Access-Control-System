@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Data Management Portal{% endblock %}
+
+{% block content %}
+<div class="auth-form">
+    <h2>Create Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% for field in form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.errors %}
+            <div class="alert alert-danger" style="margin-top: 0.5rem;">
+                {% for error in field.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if field.help_text %}
+            <small class="form-help">{{ field.help_text|safe }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign Up</button>
+    </form>
+
+    <div class="form-link">
+        Already have an account? <a href="{% url 'login' %}">Login here</a>
+    </div>
+</div>
+{% endblock %}

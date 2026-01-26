@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Add Record{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="mb-4">Add New Record to {{ tab.name }}</h2>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" id="recordForm" class="card p-4">
+                {% csrf_token %}
+                
+                <input type="hidden" name="tab_id" value="{{ tab.id }}">
+                
+                <div id="fieldsContainer">
+                    {% for column in columns %}
+                        <div class="form-group mb-3">
+                            <label for="field_{{ column }}" class="form-label">{{ column }}</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="field_{{ column }}" 
+                                   name="field_{{ column }}" 
+                                   placeholder="Enter {{ column }}">
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% if columns|length == 0 %}
+                    <div class="alert alert-info">
+                        <strong>No records exist yet.</strong> Enter column names and values below to create the first record.
+                        <button type="button" id="addFieldBtn" class="btn btn-sm btn-secondary ms-2">+ Add Field</button>
+                    </div>
+                    <div id="dynamicFieldsContainer"></div>
+                {% endif %}
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-save"></i> Save Record
+                    </button>
+                    <a href="{% url 'view_tab' tab.id %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Tab
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dynamicFieldCount = 0;
+
+    // Add field button only shows if no columns exist
+    const addFieldBtn = document.getElementById('addFieldBtn');
+    if (addFieldBtn) {
+        addFieldBtn.addEventListener('click', function() {
+            dynamicFieldCount++;
+            const container = document.getElementById('dynamicFieldsContainer');
+            
+            const fieldHtml = `
+                <div class="form-group mb-3" id="dynamicField_${dynamicFieldCount}">
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               placeholder="Column name" 
+                               name="dynamic_col_${dynamicFieldCount}">
+                        <input type="text" 
+                               class="form-control" 
+                               placeholder="Value" 
+                               name="dynamic_val_${dynamicFieldCount}">
+                        <button class="btn btn-danger" type="button" 
+                                onclick="document.getElementById('dynamicField_${dynamicFieldCount}').remove()">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', fieldHtml);
+        });
+    }
+
+    // Form submission handler
+    document.getElementById('recordForm').addEventListener('submit', function(e) {
+        const formData = new FormData(this);
+        
+        // Create data object from form fields
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'csrfmiddlewaretoken' && key !== 'tab_id') {
+                if (key.startsWith('field_')) {
+                    const column = key.replace('field_', '');
+                    if (value.trim()) data[column] = value;
+                } else if (key.startsWith('dynamic_col_')) {
+                    const num = key.replace('dynamic_col_', '');
+                    const colName = value;
+                    const colValue = formData.get(`dynamic_val_${num}`);
+                    if (colName && colValue) data[colName] = colValue;
+                }
+            }
+        }
+        
+        // Store data as JSON in a hidden field before submit
+        const dataInput = document.createElement('input');
+        dataInput.type = 'hidden';
+        dataInput.name = 'data_json';
+        dataInput.value = JSON.stringify(data);
+        this.appendChild(dataInput);
+    });
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid #dee2e6;
+    }
+    
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}

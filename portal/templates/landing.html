@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Landing - Data Management Portal{% endblock %}
+
+{% block content %}
+<div class="landing-hero">
+    <h1>Role-Based Data Management Portal</h1>
+    <p>Securely manage departmental data with role-based access control</p>
+    <div class="landing-buttons">
+        <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+        <a href="{% url 'signup' %}" class="btn btn-secondary">Sign Up</a>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">Features</div>
+        <div class="card-body">
+            <ul style="line-height: 2;">
+                <li>✅ Role-based access control (Director, Scientist, Staff)</li>
+                <li>✅ Dynamic departmental structure with customizable tabs</li>
+                <li>✅ Full CRUD operations on data records</li>
+                <li>✅ Excel data import functionality</li>
+                <li>✅ Secure authentication and authorization</li>
+                <li>✅ User-friendly interface with responsive design</li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+        <div class="card">
+            <div class="card-header">For Directors</div>
+            <div class="card-body">
+                Create and manage departments, organize data into tabs, and maintain complete control over organizational structure.
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">For Scientists</div>
+            <div class="card-body">
+                Access departmental data, add records, edit existing data, and collaborate with team members.
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">For Staff</div>
+            <div class="card-body">
+                View and add records to authorized departments, contributing to data collection efforts.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Import Excel - Data Management Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Import Excel Data</h1>
+    <p>Tab: {{ tab.department.name }} - {{ tab.name }}</p>
+</div>
+
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">Select Excel File</div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_file">Excel File (xlsx, xls) *</label>
+                <input type="file" id="id_file" name="file" class="form-control" accept=".xlsx,.xls" required>
+                <small class="form-help">Select an Excel file to import. Each row will be converted to a record with column headers as field names.</small>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-success">Import Data</button>
+                <a href="{% url 'view_tab' tab.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div style="margin-top: 2rem; padding: 1rem; background: #f0f7ff; border-left: 4px solid #0066cc; border-radius: 4px;">
+    <strong>📋 Import Guidelines:</strong>
+    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+        <li>The first row of your Excel file should contain column headers</li>
+        <li>Each subsequent row will be imported as a new record</li>
+        <li>Existing records will not be overwritten</li>
+        <li>Data will be stored in JSON format</li>
+        <li>Supports .xlsx and .xls file formats</li>
+    </ul>
+</div>
+{% endblock %}
