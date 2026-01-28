@@ -116,21 +116,36 @@ cd ag_grid_files
 
 **Run this PowerShell script to download 3 files:**
 ```powershell
+# Create and move into AG Grid folder
+$targetDir = "C:\offline_setup\ag_grid_files"
+New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
+Set-Location $targetDir
+
+# Correct AG Grid v32 URLs
 $urls = @(
-    "https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.0/dist/styles/ag-grid.css",
-    "https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.0/dist/styles/ag-theme-quartz.css",
+    "https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.0/styles/ag-grid.css",
+    "https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.0/styles/ag-theme-quartz.css",
     "https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.0/dist/ag-grid-community.min.js"
 )
 
 foreach ($url in $urls) {
-    $filename = $url.Split('/')[-1]
-    Write-Host "Downloading: $filename from CDN..."
-    Invoke-WebRequest -Uri $url -OutFile $filename
-    Write-Host "✓ Downloaded: $filename"
+    $filename = ($url -split "/")[-1]
+    Write-Host "Downloading: $filename ..."
+
+    try {
+        Invoke-WebRequest -Uri $url -OutFile $filename -ErrorAction Stop
+        Write-Host "✓ Downloaded: $filename"
+    }
+    catch {
+        Write-Host "✗ FAILED: $filename"
+        Write-Host $_.Exception.Message
+        exit 1
+    }
 }
 
 Write-Host "`n✓ All AG Grid files downloaded successfully!"
-ls
+Get-ChildItem
+
 ```
 
 **Verify 3 files downloaded:**
@@ -598,4 +613,5 @@ C:\Projects\RBAC_Project\
 ✓ **Role-based access control works**
 
 **Questions?** Check OFFLINE_INSTALLATION.md or SETUP_AND_CAPABILITIES.md
+
 
