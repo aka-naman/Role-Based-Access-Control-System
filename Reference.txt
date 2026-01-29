@@ -1,0 +1,33 @@
+python download
+https://www.python.org/downloads/windows/
+
+Look for Python 3.11.x Windows installer
+
+
+2.) for numpy 
+https://pypi.org/project/numpy/1.26.4/#files
+look for 
+numpy-1.26.4-cp311-cp311-win_amd64.whl
+
+
+
+3.) for installing the wheel
+python -m pip install --no-index --find-links=./ numpy-1.26.4-cp311-cp311-win_amd64.whl
+
+
+
+4.) installing complete wheel folder at once
+
+Run this from your project root (virtual environment activated):
+
+
+python -m pip install --no-index --find-links=./pip_packages ./pip_packages/*.whl
+
+
+
+Option A: Run from inside pip_packages
+cd pip_packages
+python -m pip install --no-index *.whl
+
+
+
